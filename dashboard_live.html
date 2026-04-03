@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Agentur | Live Finance Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .login-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 48px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .login-box h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .login-box p { color: #9ca3af; margin-bottom: 24px; }
+        
+        .login-box input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+        
+        .login-box button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        #dashboard { display: none; }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 60px 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle { color: #9ca3af; font-size: 1.1rem; }
+        .timestamp { color: #6b7280; font-size: 0.9rem; margin-top: 15px; }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #9ca3af;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1f1f2e 0%, #1a1a2e 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 32px;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        }
+        
+        .kpi-label {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .section {
+            background: linear-gradient(135deg, #1f1f2e 0%, #1a1a2e 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 16px 12px;
+            color: #9ca3af;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .data-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #e5e7eb;
+        }
+        
+        .text-right { text-align: right; }
+        .euro { font-weight: 600; font-family: monospace; }
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>🔐 Ad Agentur Dashboard</h1>
+            <p>Passwort: adagentur2026</p>
+            <input type="password" id="password-input" placeholder="Passwort" onkeypress="if(event.key==='Enter')checkPassword()">
+            <button onclick="checkPassword()">Anmelden</button>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <div class="container">
+            <header>
+                <h1>Ad Agentur</h1>
+                <p class="subtitle">Live Finance Dashboard</p>
+                <p class="timestamp" id="timestamp">Lade...</p>
+            </header>
+            
+            <div id="loading" class="loading">Lade Daten...</div>
+            <div id="content" style="display:none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Aktive Kunden</div>
+                        <div class="kpi-value" id="kpi-kunden">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Umsatz</div>
+                        <div class="kpi-value" id="kpi-umsatz">-</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2>Top Kunden</h2>
+                    <div id="top-spender"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DASHBOARD_PASSWORD = 'adagentur2026';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/1qTgbNCIaHtvGGXHlvXf0J2cnVh-F5yt4BTc2xgiOM_0/export?format=csv&gid=1298332214';
+        
+        function checkPassword() {
+            if (document.getElementById('password-input').value === DASHBOARD_PASSWORD) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                loadData();
+            }
+        }
+        
+        async function loadData() {
+            const response = await fetch(CSV_URL);
+            const text = await response.text();
+            const rows = text.split('\\n').map(r => r.split(','));
+            
+            // Einfache Anzeige
+            document.getElementById('kpi-kunden').textContent = rows.length - 2;
+            document.getElementById('timestamp').textContent = new Date().toLocaleString('de-DE');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
