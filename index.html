@@ -2,10 +2,675 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=https://docs.google.com/spreadsheets/d/1qTgbNCIaHtvGGXHlvXf0J2cnVh-F5yt4BTc2xgiOM_0/edit">
-    <title>Ad Agentur Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Agentur | Performance Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Header */
+        header {
+            text-align: center;
+            padding: 60px 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .subtitle {
+            color: #9ca3af;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+        
+        .timestamp {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1f1f2e 0%, #1a1a2e 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        }
+        
+        .kpi-card.warning::before {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+        }
+        
+        .kpi-card.success::before {
+            background: linear-gradient(90deg, #10b981, #22c55e);
+        }
+        
+        .kpi-label {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-subtext {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        /* Section */
+        .section {
+            background: linear-gradient(135deg, #1f1f2e 0%, #1a1a2e 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 16px 12px;
+            color: #9ca3af;
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .data-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #e5e7eb;
+        }
+        
+        .data-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .euro {
+            font-weight: 600;
+            font-family: 'Inter', monospace;
+        }
+        
+        .positive {
+            color: #10b981;
+        }
+        
+        .negative {
+            color: #ef4444;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .badge-info {
+            background: rgba(99, 102, 241, 0.2);
+            color: #6366f1;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        /* ABO Section */
+        .abo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .abo-card {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .abo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .abo-name {
+            font-weight: 500;
+            color: #ffffff;
+        }
+        
+        .abo-status {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+    </style>
 </head>
 <body>
-    <p>Weiterleitung zum <a href="https://docs.google.com/spreadsheets/d/1qTgbNCIaHtvGGXHlvXf0J2cnVh-F5yt4BTc2xgiOM_0/edit">Dashboard</a>...</p>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Ad Agentur</h1>
+            <p class="subtitle">Performance Dashboard</p>
+            <p class="timestamp">Stand: 03.04.2026 12:37</p>
+        </header>
+        
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Aktive Kunden</div>
+                <div class="kpi-value">35</div>
+                <div class="kpi-subtext">Gesamt</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-label">Monatlicher Umsatz</div>
+                <div class="kpi-value">€ 93,600</div>
+                <div class="kpi-subtext">Aktive Kunden</div>
+            </div>
+            
+            <div class="kpi-card warning">
+                <div class="kpi-label">⚠️ Overspend</div>
+                <div class="kpi-value">13</div>
+                <div class="kpi-subtext">Über Budget</div>
+            </div>
+            
+            <div class="kpi-card success">
+                <div class="kpi-label">✓ Underspend</div>
+                <div class="kpi-value">21</div>
+                <div class="kpi-subtext">Unter Budget</div>
+            </div>
+        </div>
+        
+        <!-- Rechnungen fällig -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-icon">🚨</span>
+                    Rechnungen fällig
+                </h2>
+                <span class="badge badge-danger">1 Kunden</span>
+            </div>
+            <table class="data-table">
+        <thead><tr><th>Kunde</th><th class="text-right">Rechnungswert</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr>
+            <td>Famosa Haus</td>
+            <td class="text-right euro">€ 6,500.00</td>
+            <td><span class="badge badge-warning">Rechnung fällig</span></td>
+        </tr></tbody>
+    </table>
+        </div>
+        
+        <!-- Top Spender -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-icon">🏆</span>
+                    Top 5 Kunden
+                </h2>
+                <span class="badge badge-info">Nach Umsatz</span>
+            </div>
+            <table class="data-table">
+        <thead><tr><th>Rang</th><th>Kunde</th><th class="text-right">Umsatz</th></tr></thead>
+        <tbody>
+        <tr>
+            <td><strong>#1</strong></td>
+            <td>Energie AG No Rechnung erstellen!!!!! (30K für PV)</td>
+            <td class="text-right euro">€ 10,000.00</td>
+        </tr>
+        <tr>
+            <td><strong>#2</strong></td>
+            <td>Lengel GmbH</td>
+            <td class="text-right euro">€ 10,000.00</td>
+        </tr>
+        <tr>
+            <td><strong>#3</strong></td>
+            <td>Famosa Haus</td>
+            <td class="text-right euro">€ 6,500.00</td>
+        </tr>
+        <tr>
+            <td><strong>#4</strong></td>
+            <td>Wittmann Entsorgungswirtschaft</td>
+            <td class="text-right euro">€ 5,250.00</td>
+        </tr>
+        <tr>
+            <td><strong>#5</strong></td>
+            <td>Adler Resort Hinterglemm</td>
+            <td class="text-right euro">€ 4,000.00</td>
+        </tr></tbody>
+    </table>
+        </div>
+        
+        <!-- Overspend -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-icon">⚠️</span>
+                    Overspend (über Budget)
+                </h2>
+                <span class="badge badge-danger">13 Kunden</span>
+            </div>
+            <table class="data-table">
+        <thead>
+            <tr>
+                <th>Kunde</th>
+                <th class="text-right">Soll (Tag)</th>
+                <th class="text-right">Ist (28 Tage)</th>
+                <th class="text-right">Abweichung</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Hofer Grünstrom</td>
+            <td class="text-right">€ 0.00</td>
+            <td class="text-right">€ 164.72</td>
+            <td class="text-right euro negative">€ 3,088.61</td>
+        </tr>
+        <tr>
+            <td>HPS Play Company GmbH 2 x 9000 (17.Feb, +?)  </td>
+            <td class="text-right">€ 40.82</td>
+            <td class="text-right">€ 112.07</td>
+            <td class="text-right euro negative">€ 71.25</td>
+        </tr>
+        <tr>
+            <td>Energie AG No Rechnung erstellen!!!!! (30K für PV)</td>
+            <td class="text-right">€ 204.08</td>
+            <td class="text-right">€ 253.00</td>
+            <td class="text-right euro negative">€ 48.92</td>
+        </tr>
+        <tr>
+            <td>NIKKO PHOTOVOLTAIK GMBH !!!!!!NEU 3000NETTO!!!</td>
+            <td class="text-right">€ 61.22</td>
+            <td class="text-right">€ 98.27</td>
+            <td class="text-right euro negative">€ 37.05</td>
+        </tr>
+        <tr>
+            <td>Famosa Haus</td>
+            <td class="text-right">€ 154.76</td>
+            <td class="text-right">€ 162.96</td>
+            <td class="text-right euro negative">€ 8.20</td>
+        </tr>
+        <tr>
+            <td>Zahnarztpraxis am Winterhafen (Reek)</td>
+            <td class="text-right">€ 56.12</td>
+            <td class="text-right">€ 62.54</td>
+            <td class="text-right euro negative">€ 6.42</td>
+        </tr>
+        <tr>
+            <td>Lengel GmbH</td>
+            <td class="text-right">€ 170.07</td>
+            <td class="text-right">€ 176.24</td>
+            <td class="text-right euro negative">€ 6.17</td>
+        </tr>
+        <tr>
+            <td>S&B Fleck GmbH </td>
+            <td class="text-right">€ 42.52</td>
+            <td class="text-right">€ 47.01</td>
+            <td class="text-right euro negative">€ 4.49</td>
+        </tr>
+        <tr>
+            <td>Dr. Christine Reisenbauer </td>
+            <td class="text-right">€ 26.53</td>
+            <td class="text-right">€ 29.55</td>
+            <td class="text-right euro negative">€ 3.02</td>
+        </tr>
+        <tr>
+            <td>Elisabeth Tretenhahn - Physeli´s</td>
+            <td class="text-right">€ 20.41</td>
+            <td class="text-right">€ 23.15</td>
+            <td class="text-right euro negative">€ 2.74</td>
+        </tr>
+        <tr>
+            <td>Kratky Kältetechnik</td>
+            <td class="text-right">€ 40.82</td>
+            <td class="text-right">€ 42.49</td>
+            <td class="text-right euro negative">€ 1.67</td>
+        </tr>
+        <tr>
+            <td>Akademus (Klupak Nicolas Bernd)</td>
+            <td class="text-right">€ 22.79</td>
+            <td class="text-right">€ 23.59</td>
+            <td class="text-right euro negative">€ 0.80</td>
+        </tr>
+        <tr>
+            <td>factor happiness Training- und Beratungs GmbH</td>
+            <td class="text-right">€ 10.20</td>
+            <td class="text-right">€ 10.78</td>
+            <td class="text-right euro negative">€ 0.58</td>
+        </tr></tbody>
+    </table>
+        </div>
+        
+        <!-- Underspend -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-icon">✓</span>
+                    Underspend (unter Budget)
+                </h2>
+                <span class="badge badge-success">21 Kunden</span>
+            </div>
+            <table class="data-table">
+        <thead>
+            <tr>
+                <th>Kunde</th>
+                <th class="text-right">Soll (Tag)</th>
+                <th class="text-right">Ist (28 Tage)</th>
+                <th class="text-right">Abweichung</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Patenanwaltskanzlei Matschnig & Forsthuber OG</td>
+            <td class="text-right">€ 40.82</td>
+            <td class="text-right">€ 0.00</td>
+            <td class="text-right euro positive">€ 1,142.86</td>
+        </tr>
+        <tr>
+            <td>Best Media Web GmbH - NURALIA</td>
+            <td class="text-right">€ 71.43</td>
+            <td class="text-right">€ 23.74</td>
+            <td class="text-right euro positive">€ 47.69</td>
+        </tr>
+        <tr>
+            <td>WSE Wittmann Sonderabfall-Entsorgung GmbH</td>
+            <td class="text-right">€ 53.57</td>
+            <td class="text-right">€ 23.92</td>
+            <td class="text-right euro positive">€ 29.65</td>
+        </tr>
+        <tr>
+            <td>Peter Max</td>
+            <td class="text-right">€ 81.63</td>
+            <td class="text-right">€ 53.66</td>
+            <td class="text-right euro positive">€ 27.97</td>
+        </tr>
+        <tr>
+            <td>Wittmann Entsorgungswirtschaft</td>
+            <td class="text-right">€ 125.00</td>
+            <td class="text-right">€ 97.26</td>
+            <td class="text-right euro positive">€ 27.74</td>
+        </tr>
+        <tr>
+            <td>Steinmeister netto 2300 (ehemals Fassadenexpert - Sauberdach) Thomas Fischer</td>
+            <td class="text-right">€ 46.94</td>
+            <td class="text-right">€ 21.54</td>
+            <td class="text-right euro positive">€ 25.40</td>
+        </tr>
+        <tr>
+            <td>Adler Resort Hinterglemm</td>
+            <td class="text-right">€ 81.63</td>
+            <td class="text-right">€ 57.18</td>
+            <td class="text-right euro positive">€ 24.45</td>
+        </tr>
+        <tr>
+            <td>Haus der Musik</td>
+            <td class="text-right">€ 51.02</td>
+            <td class="text-right">€ 30.43</td>
+            <td class="text-right euro positive">€ 20.59</td>
+        </tr>
+        <tr>
+            <td>Fassaden Expert Rechung firma ist gleich wie bei sauberflix netto 400 €</td>
+            <td class="text-right">€ 51.02</td>
+            <td class="text-right">€ 31.46</td>
+            <td class="text-right euro positive">€ 19.56</td>
+        </tr>
+        <tr>
+            <td>HAKA Küchen Aka. Cubiqo GmbH</td>
+            <td class="text-right">€ 30.61</td>
+            <td class="text-right">€ 12.43</td>
+            <td class="text-right euro positive">€ 18.18</td>
+        </tr>
+        <tr>
+            <td>Trovid Innenausbau e.U. </td>
+            <td class="text-right">€ 20.41</td>
+            <td class="text-right">€ 3.97</td>
+            <td class="text-right euro positive">€ 16.44</td>
+        </tr>
+        <tr>
+            <td>GO-DI Dach 600 € ab Juni 2023</td>
+            <td class="text-right">€ 30.61</td>
+            <td class="text-right">€ 16.97</td>
+            <td class="text-right euro positive">€ 13.64</td>
+        </tr>
+        <tr>
+            <td>Dr. Resch NEUE CID</td>
+            <td class="text-right">€ 63.27</td>
+            <td class="text-right">€ 51.06</td>
+            <td class="text-right euro positive">€ 12.21</td>
+        </tr>
+        <tr>
+            <td>The Power Company Herr Gregor Toplak</td>
+            <td class="text-right">€ 51.02</td>
+            <td class="text-right">€ 40.93</td>
+            <td class="text-right euro positive">€ 10.09</td>
+        </tr>
+        <tr>
+            <td>Forsthuber & Partner Rechtsanwälte(SEPA -   AT15 3204 5000 0001 9182)</td>
+            <td class="text-right">€ 29.76</td>
+            <td class="text-right">€ 20.71</td>
+            <td class="text-right euro positive">€ 9.05</td>
+        </tr>
+        <tr>
+            <td>Romantik Hotel Seevilla [HOGAST]</td>
+            <td class="text-right">€ 71.43</td>
+            <td class="text-right">€ 63.78</td>
+            <td class="text-right euro positive">€ 7.65</td>
+        </tr>
+        <tr>
+            <td>“Dialog – Der SprachCampus” private Bildungseinrichtung GmbH</td>
+            <td class="text-right">€ 51.02</td>
+            <td class="text-right">€ 43.62</td>
+            <td class="text-right euro positive">€ 7.40</td>
+        </tr>
+        <tr>
+            <td>Aquiso </td>
+            <td class="text-right">€ 26.53</td>
+            <td class="text-right">€ 21.43</td>
+            <td class="text-right euro positive">€ 5.10</td>
+        </tr>
+        <tr>
+            <td>Steinway in Austria GmbH </td>
+            <td class="text-right">€ 22.79</td>
+            <td class="text-right">€ 18.06</td>
+            <td class="text-right euro positive">€ 4.73</td>
+        </tr>
+        <tr>
+            <td>schwarzl.law (Herr Daniel Schwarzl)</td>
+            <td class="text-right">€ 30.61</td>
+            <td class="text-right">€ 27.36</td>
+            <td class="text-right euro positive">€ 3.25</td>
+        </tr>
+        <tr>
+            <td>Zahn Baden - Dr. Matthäus Ratschew</td>
+            <td class="text-right">€ 30.61</td>
+            <td class="text-right">€ 30.25</td>
+            <td class="text-right euro positive">€ 0.36</td>
+        </tr></tbody>
+    </table>
+        </div>
+        
+        <!-- ABO Kunden -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-icon">🔄</span>
+                    ABO-Kunden (automatisch)
+                </h2>
+                <span class="badge badge-info">2 Kunden</span>
+            </div>
+            <div class="abo-grid">
+        <div class="abo-card">
+            <div class="abo-icon">🔄</div>
+            <div>
+                <div class="abo-name">Asia Resort Linsberg Betriebs GmbH (ABO RECHNUNG -...</div>
+                <div class="abo-status">Aktiv</div>
+            </div>
+        </div>
+        <div class="abo-card">
+            <div class="abo-icon">🔄</div>
+            <div>
+                <div class="abo-name">HotelPartner (International Marketing) ((ABO RECHN...</div>
+                <div class="abo-status">Aktiv</div>
+            </div>
+        </div></div>
+        </div>
+    </div>
 </body>
 </html>
