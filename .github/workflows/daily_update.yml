@@ -1,35 +1,47 @@
 name: Daily Dashboard Update
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '0 6 * * *'  # 06:00 UTC = 08:00 Uhr MESZ
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Grund für manuelles Update'
-        required: false
-        default: 'Manuelles Update'
+
+permissions:
+  contents: write
 
 jobs:
-  update:
+  update-dashboard:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
-      - name: Install curl
-        run: sudo apt-get update && sudo apt-get install -y curl
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
       
       - name: Generate Dashboard
+        env:
+          SHEET_ID: '1qTgbNCIaHtvGGXHlvXf0J2cnVh-F5yt4BTc2xgiOM_0'
+          GID: '1298332214'
         run: |
-          python3 << 'EOF'
+          python3 << 'PYTHON_SCRIPT'
           import subprocess
           import csv
           import re
+          import os
           from datetime import datetime
           
           def parse_euro(value):
@@ -55,18 +67,31 @@ jobs:
               return f"€ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
           
           # Daten laden
-          sheet_id = '1qTgbNCIaHtvGGXHlvXf0J2cnVh-F5yt4BTc2xgiOM_0'
-          gid = '1298332214'
+          sheet_id = os.environ.get('SHEET_ID', '1qTgbNCIaHtvGGXHlvXf0J2cnVh-F5yt4BTc2xgiOM_0')
+          gid = os.environ.get('GID', '1298332214')
           csv_url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}'
           
-          result = subprocess.run(['curl', '-sL', csv_url], capture_output=True, text=True, timeout=30)
+          print(f"Loading data from: {csv_url}")
+          result = subprocess.run(['curl', '-sL', '--max-time', '60', csv_url], capture_output=True, text=True)
+          
+          if result.returncode != 0:
+              print(f"Error fetching data: {result.stderr}")
+              exit(1)
+          
+          if not result.stdout.strip():
+              print("Error: Empty response from Google Sheets")
+              exit(1)
+          
           reader = csv.reader(result.stdout.splitlines())
           rows = list(reader)
+          
+          print(f"Loaded {len(rows)} rows")
           
           header_idx = 0
           for i, row in enumerate(rows):
               if len(row) > 0 and 'Google CID' in row[0]:
                   header_idx = i
+                  print(f"Header found at row {i}")
                   break
           
           data = []
@@ -108,7 +133,9 @@ jobs:
                       'ideal': ideal
                   })
           
-          # Sortieren
+          print(f"Found {len(data)} active customers, {len(abo_kunden)} ABO customers")
+          print(f"Invoices due: {len(rechnungen_faellig)}")
+          
           mit_guthaben = sorted([d for d in data if d['differenz_berechnet'] < 0], key=lambda x: x['differenz_berechnet'])
           mit_minus = sorted([d for d in data if d['differenz_berechnet'] > 0], key=lambda x: x['differenz_berechnet'], reverse=True)
           top5 = sorted(data, key=lambda x: x['gesamtkosten'], reverse=True)[:5]
@@ -119,7 +146,7 @@ jobs:
           
           timestamp = datetime.now().strftime("%d.%m.%Y %H:%M")
           
-          # HTML generieren (vereinfacht)
+          # HTML generieren
           html = f'''<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -267,13 +294,13 @@ jobs:
           with open('index.html', 'w', encoding='utf-8') as f:
               f.write(html)
           
-          print("✅ Dashboard generated successfully!")
-          EOF
+          print(f"✅ Dashboard generated: {len(html)} bytes")
+          PYTHON_SCRIPT
       
       - name: Commit and Push
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add index.html
-          git commit -m "Auto-update: $(date '+%Y-%m-%d %H:%M')" || exit 0
+          git diff --cached --quiet || git commit -m "Auto-update: $(date '+%Y-%m-%d %H:%M')"
           git push
