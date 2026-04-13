@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 8 * * *'
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Grund für manuelles Update'
+        required: false
+        default: 'Manuelles Update'
 
 jobs:
   update:
