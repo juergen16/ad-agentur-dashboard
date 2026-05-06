@@ -769,4 +769,172 @@
         <div class="category">
             <div class="category-header">
                 <span class="category-icon">✈️</span>
-                <span class="category-title">Flug
+                <span class="category-title">Flug & Unterwegs</span>
+                <span class="category-count" id="count-flight">0/7</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Nackenkissen</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Schlafmaske</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Ohrstöpsel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Bequeme Kleidung für Flug</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Snacks für unterwegs</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Leere Wasserflasche (füllen nach Security)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Unterhaltung für Kind (Spiele, Bücher)</span>
+            </div>
+        </div>
+        
+        <!-- CHECK VOR ABFLUG -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">✅</span>
+                <span class="category-title">Check vor Abflug</span>
+                <span class="category-count" id="count-check">0/8</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Online Check-in erledigt</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Boarding Packs heruntergeladen</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Reisepässe gültig (6+ Monate)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Visum beantragt / 25 USD bereit</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Handy Roaming aktiviert / Auslandstarif</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Hotel informiert (späte Ankunft falls nötig)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Flüssigkeiten in Beutel (Handgepäck)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Wertsachen im Handgepäck</span>
+            </div>
+        </div>
+        
+        <button class="reset-btn" onclick="resetAll()">🔄 Alle zurücksetzen</button>
+    </div>
+    
+    <script>
+        // Load saved state
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = localStorage.getItem('hurghadaPackliste');
+            if (saved) {
+                const checked = JSON.parse(saved);
+                document.querySelectorAll('.item').forEach((item, index) => {
+                    if (checked.includes(index)) {
+                        item.classList.add('checked');
+                    }
+                });
+            }
+            updateProgress();
+        });
+        
+        function toggleItem(item) {
+            item.classList.toggle('checked');
+            saveState();
+            updateProgress();
+        }
+        
+        function saveState() {
+            const checked = [];
+            document.querySelectorAll('.item').forEach((item, index) => {
+                if (item.classList.contains('checked')) {
+                    checked.push(index);
+                }
+            });
+            localStorage.setItem('hurghadaPackliste', JSON.stringify(checked));
+        }
+        
+        function updateProgress() {
+            const items = document.querySelectorAll('.item');
+            const checked = document.querySelectorAll('.item.checked');
+            const total = items.length;
+            const checkedCount = checked.length;
+            const percentage = (checkedCount / total) * 100;
+            
+            document.getElementById('checked-count').textContent = checkedCount;
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('progress-fill').style.width = percentage + '%';
+            
+            // Update category counts
+            updateCategoryCount('docs', 0, 9);
+            updateCategoryCount('work', 9, 17);
+            updateCategoryCount('gaming', 17, 24);
+            updateCategoryCount('snorkel', 24, 32);
+            updateCategoryCount('fitness', 32, 39);
+            updateCategoryCount('clothes', 39, 51);
+            updateCategoryCount('kid', 51, 61);
+            updateCategoryCount('care', 61, 73);
+            updateCategoryCount('tech', 73, 83);
+            updateCategoryCount('bags', 83, 90);
+            updateCategoryCount('flight', 90, 97);
+            updateCategoryCount('check', 97, 105);
+            
+            // Show completion message
+            const completedMsg = document.getElementById('completed-message');
+            if (checkedCount === total && total > 0) {
+                completedMsg.classList.add('show');
+            } else {
+                completedMsg.classList.remove('show');
+            }
+        }
+        
+        function updateCategoryCount(id, start, end) {
+            const items = document.querySelectorAll('.item');
+            let checkedInCategory = 0;
+            for (let i = start; i < end && i < items.length; i++) {
+                if (items[i].classList.contains('checked')) {
+                    checkedInCategory++;
+                }
+            }
+            const totalInCategory = end - start;
+            const countElement = document.getElementById('count-' + id);
+            if (countElement) {
+                countElement.textContent = checkedInCategory + '/' + totalInCategory;
+            }
+        }
+        
+        function resetAll() {
+            if (confirm('Möchtest du wirklich alle Häkchen zurücksetzen?')) {
+                document.querySelectorAll('.item').forEach(item => {
+                    item.classList.remove('checked');
+                });
+                localStorage.removeItem('hurghadaPackliste');
+                updateProgress();
+            }
+        }
+    </script>
+</body>
+</html>
