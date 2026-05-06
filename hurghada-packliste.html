@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏖️ Hurghada Packliste - 1 Woche</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .emoji {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            color: #764ba2;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .progress-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #764ba2;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 50px;
+            height: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 50px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .category {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            flex: 1;
+        }
+        
+        .category-count {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .item.checked {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .item.checked .item-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        
+        .checkbox {
+            width: 26px;
+            height: 26px;
+            border: 3px solid #764ba2;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            background: white;
+        }
+        
+        .item.checked .checkbox {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .item.checked .checkbox::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .item-text {
+            font-size: 1rem;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .priority-high {
+            border-left: 4px solid #dc3545;
+            padding-left: 11px;
+        }
+        
+        .priority-medium {
+            border-left: 4px solid #ffc107;
+            padding-left: 11px;
+        }
+        
+        .reset-btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .completed-message {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 3px solid #28a745;
+            display: none;
+        }
+        
+        .completed-message.show {
+            display: block;
+            animation: celebrate 0.5s ease;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .completed-emoji {
+            font-size: 5rem;
+            margin-bottom: 15px;
+        }
+        
+        .completed-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #155724;
+        }
+        
+        .tips-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .tips-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .tips-box ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .tips-box li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            .category {
+                padding: 20px;
+            }
+            
+            .item {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="emoji">🏖️✈️🌴</div>
+            <h1>Hurghada Packliste</h1>
+            <p class="subtitle">1 Woche | Familie | Arbeit & Spaß</p>
+        </header>
+        
+        <div class="progress-container">
+            <div class="progress-text">
+                <span id="checked-count">0</span> / <span id="total-count">0</span> erledigt
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div class="completed-message" id="completed-message">
+            <div class="completed-emoji">🎉🏖️✈️</div>
+            <div class="completed-text">Alles gepackt!<br>Gute Reise nach Hurghada!</div>
+        </div>
+        
+        <div class="tips-box">
+            <h3>💡 Wichtige Hinweise</h3>
+            <ul>
+                <li>Ägypten: Adapter Typ C/F (Euro-Stecker passen)</li>
+                <li>Visum: Bei Ankunft (25 USD) oder online e-Visa</li>
+                <li>Währung: Euro oder USD mitnehmen, vor Ort wechseln</li>
+                <li>Sonnenschutz: LSF 50+ nicht vergessen!</li>
+                <li>Trinkwasser: Nur abgefülltes Wasser</li>
+            </ul>
+        </div>
+        
+        <!-- DOKUMENTE -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">📄</span>
+                <span class="category-title">Dokumente & Geld</span>
+                <span class="category-count" id="count-docs">0/9</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Reisepässe (alle 3)</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Visum Ägypten (oder 25 USD für Visa on Arrival)</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Flugtickets / Boarding Passes (digital)</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Hotelbuchung (digital)</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Reiseversicherung (Dokument)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Impfpass (falls vorhanden)</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Kreditkarten + EC-Karte</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Bargeld: 200-300 EUR + 50-100 USD</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Notfallkontakte (geschrieben)</span>
+            </div>
+        </div>
+        
+        <!-- TECHNIK ARBEIT -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">💼</span>
+                <span class="category-title">Arbeitstechnik</span>
+                <span class="category-count" id="count-work">0/8</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Laptop + Ladekabel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Laptop-Tasche/Sleeve</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">iPad + Ladekabel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">iPad Hülle / Tastatur</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">USB-C Hub / Adapter</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Externe Festplatte (falls nötig)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">VPN-App aktiviert (für sicheres Arbeiten)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Cloud-Zugänge geprüft</span>
+            </div>
+        </div>
+        
+        <!-- GAMING -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🎮</span>
+                <span class="category-title">Gaming & Entertainment</span>
+                <span class="category-count" id="count-gaming">0/7</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Steam Deck + Ladekabel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Steam Deck Case / Tasche</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Nintendo Switch + Ladekabel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Switch Spiele (SD-Karten)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Switch Pro Controller (optional)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Kopfhörer / Gaming Headset</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Powerbank (für unterwegs)</span>
+            </div>
+        </div>
+        
+        <!-- SCHNORCHELN -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🤿</span>
+                <span class="category-title">Schnorcheln & Wassersport</span>
+                <span class="category-count" id="count-snorkel">0/8</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Schnorchelmaske (eigene)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Schnorchel (Tube)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Flossen (optional, vor Ort leihen)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Rash Guard / UV-Shirt</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Wasserschuhe / Badeschuhe</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Unterwasserkamera / GoPro</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Wasserdichte Tasche für Handy</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Schnorchelset für Kind (4 Jahre)</span>
+            </div>
+        </div>
+        
+        <!-- TRAINING -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">💪</span>
+                <span class="category-title">Training & Fitness</span>
+                <span class="category-count" id="count-fitness">0/7</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Sportkleidung (2-3 Sets)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Sportschuhe (leicht)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Fitness-Tracker / Smartwatch + Ladekabel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Bluetooth Kopfhörer (für Sport)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Widerstandsbänder (leicht, für Hotel)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Springseil (optional)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Protein-Shakes / Riegel (optional)</span>
+            </div>
+        </div>
+        
+        <!-- KLEIDUNG -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">👕</span>
+                <span class="category-title">Kleidung</span>
+                <span class="category-count" id="count-clothes">0/12</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">T-Shirts (7-8 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Shorts (4-5 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Leichte Hosen (2 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Badehosen (3-4 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Unterwäsche (8 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Socken (8 Paar)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Leichte Jacke / Hoodie (für Abends)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Sonnenbrille (2 Stück - eine als Backup)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Cap / Hut</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Bequeme Schuhe (für Ausflüge)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Sandalen / Flip-Flops</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Schlafanzug (leicht)</span>
+            </div>
+        </div>
+        
+        <!-- KIND (4 JAHRE) -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">👶</span>
+                <span class="category-title">Kind (4 Jahre)</span>
+                <span class="category-count" id="count-kid">0/10</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">T-Shirts (7-8 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Shorts (5-6 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Badehosen (3-4 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Unterwäsche (8 Stück)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Socken (8 Paar)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Sonnenhut (mit Nackenschutz)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">UV-Schutzkleidung (Rash Guard)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Wasserschuhe</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Lieblingsspielzeug (Kuscheltier)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Malbuch / Stifte (für Flug)</span>
+            </div>
+        </div>
+        
+        <!-- PFLEGE & GESUNDHEIT -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🧴</span>
+                <span class="category-title">Pflege & Gesundheit</span>
+                <span class="category-count" id="count-care">0/12</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Sonnencreme LSF 50+ (2-3 Tuben)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">After-Sun Lotion / Aloe Vera</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Lippenbalsam mit LSF</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Zahnbürsten & Zahnpasta (alle 3)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Deo</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Shampoo & Duschgel (Travel-Size)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Rasierer & Rasierschaum</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Kamm / Bürste</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Reiseapotheke (Tabletten, Pflaster, Desinfektion)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Mückenschutz / Insektenspray</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Handdesinfektionsmittel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Feuchtigkeitscreme</span>
+            </div>
+        </div>
+        
+        <!-- ELEKTRONIK & LADEKABEL -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">📱</span>
+                <span class="category-title">Elektronik & Kabel</span>
+                <span class="category-count" id="count-tech">0/10</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Handy + Ladekabel</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Powerbank (mind. 20.000 mAh)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Universal Reiseadapter (Ägypten: Typ C/F)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Mehrfachsteckdose (3-4 Fach)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">USB-C Kabel (mehrere)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Lightning Kabel (für iPad)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Kabel-Organizer / Tasche</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Bluetooth Kopfhörer (2 Paar)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">E-Reader (optional)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Kamera + Ladegerät (optional)</span>
+            </div>
+        </div>
+        
+        <!-- TASCHEN & ORGANISATION -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🎒</span>
+                <span class="category-title">Taschen & Organisation</span>
+                <span class="category-count" id="count-bags">0/7</span>
+            </div>
+            <div class="item priority-high" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Großer Koffer (für 3 Personen)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Handgepäck-Rucksack (für Laptop & Wertsachen)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Strandtasche / Daypack</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Wasserdichte Beutel (für Strand)</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Packwürfel / Organizer</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Geldbeutel / Reiseportemonnaie</span>
+            </div>
+            <div class="item" onclick="toggleItem(this)">
+                <div class="checkbox"></div>
+                <span class="item-text">Reisepass-Hülle (wasserdicht)</span>
+            </div>
+        </div>
+        
+        <!-- FLUG & UNTERWEGS -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">✈️</span>
+                <span class="category-title">Flug
